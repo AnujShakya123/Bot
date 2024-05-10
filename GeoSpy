@@ -1,0 +1,76 @@
+import requests
+import json
+
+# Geospy API endpoint
+GEOSPY_API_URL = "https://dev.geospy.ai"
+# Telegram bot token and base URL
+TELEGRAM_TOKEN = "7057443610:AAEHTeVObKBn9Y-7suJpZLDWlMnVMPw4D9I"
+TELEGRAM_BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
+
+def get_location_info(ip_address):
+    try:
+        # Make a request to Geospy API
+        response = requests.get(f"{GEOSPY_API_URL}?ip={ip_address}")
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        data = response.json()
+        return data
+    except Exception as e:
+        print("Error fetching data from Geospy API:", e)
+        return None
+
+
+    
+
+
+
+
+def send_message(chat_id, text):
+    try:
+        # Send a message to Telegram bot
+        url = f"{TELEGRAM_BASE_URL}sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": text
+        }
+        response = requests.post(url, json=payload)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        return response.json()
+    except Exception as e:
+        print("Error sending message to Telegram:", e)
+        return None
+
+def main():
+    # Start the bot
+    offset = 0
+    while True:
+        try:
+            # Get updates from Telegram
+            response = requests.get(f"{TELEGRAM_BASE_URL}getUpdates?offset={offset}")
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            updates = response.json()["result"]
+            for update in updates:
+                # Update offset to avoid getting the same messages again
+                offset = update["update_id"] + 1
+                if "message" in update:
+                    message = update["message"]
+                    chat_id = message["chat"]["id"]
+                    if "text" in message:
+                        text = message["text"]
+                        if text.startswith("/ip"):
+                            # Extract IP address from the command
+                            ip_address = text.split()[1]
+                            # Get location info from Geospy API
+                            location_info = get_location_info(ip_address)
+                            if location_info:
+                                send_message(chat_id, json.dumps(location_info, indent=4))
+        except Exception as e:
+            print("Error:", e)
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
