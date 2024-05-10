@@ -2,7 +2,7 @@ import requests
 import json
 
 # Geospy API endpoint
-GEOSPY_API_URL = "https://dev.geospy.ai"
+GEOSPY_API_URL = "https://api.geospy.ai/"
 # Telegram bot token and base URL
 TELEGRAM_TOKEN = "7057443610:AAEHTeVObKBn9Y-7suJpZLDWlMnVMPw4D9I"
 TELEGRAM_BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
